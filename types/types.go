@@ -14,15 +14,20 @@ type RspPost struct {
 	Name string `json:"your_name"`
 }
 
-type ReqLogin struct {
-	UserName string `json:"user_name"`
-	PassWord string `json:"user_pass"`
+type ReqVerify struct {
+	VerifyId   string `json:"verify_id"`
+	VerifyCode string `json:"verify_code"`
 }
 
-type RspLogin struct {
+type ReqLogin struct {
+	ReqVerify
+	UserName string `json:"user_name"`
+	PassWord string `json:"user_pass"`
 }
 
 type ReqRegist struct {
+	ReqVerify
 	UserName string `json:"user_name"`
 	PassWord string `json:"user_pass"`
+	FsId     string `json:"father"`
 }

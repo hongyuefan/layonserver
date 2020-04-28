@@ -6,7 +6,7 @@ import (
 	"layonserver/types"
 	"layonserver/util/log"
 
-	//"layonserver/util/token"
+	"layonserver/util/verifycode"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -41,6 +41,23 @@ func (h Handlers) HandlerLogin(c *gin.Context) {
 
 }
 
+func (h Handlers) HandlerRegist(c *gin.Context) {
+	var (
+		err error
+		req types.ReqRegist
+	)
+	if err = c.ShouldBindWith(req, binding.JSON); err != nil {
+		goto errDeal
+	}
+	if !verifycode.VCodeValidate(req.VerifyId, req.VerifyCode) {
+		err = fmt.Errorf("验证码错误")
+		goto errDeal
+	}
+errDeal:
+	HandlerFailed(c, "regist", err.Error())
+	return
+}
+
 func (h *Handlers) HandlerGet(c *gin.Context) {
 	return
 }
@@ -67,9 +84,9 @@ errDeal:
 
 func HandlerSuccess(c *gin.Context, requestType, data interface{}) {
 	c.JSON(200, gin.H{
-		"isSuccess": true,
-		"message":   "success",
-		"data":      data,
+		"success": true,
+		"msg":     "success",
+		"data":    data,
 	})
 	logMsg := fmt.Sprintf("From [%s] result success", c.Request.RemoteAddr)
 	log.GetLog().LogInfo(requestType, logMsg)
@@ -77,8 +94,8 @@ func HandlerSuccess(c *gin.Context, requestType, data interface{}) {
 
 func HandlerFailed(c *gin.Context, requestType, errMsg string) {
 	c.JSON(200, gin.H{
-		"isSuccess": false,
-		"message":   errMsg,
+		"success": false,
+		"msg":     errMsg,
 	})
 	logMsg := fmt.Sprintf("From [%s] result error [%s]", c.Request.RemoteAddr, errMsg)
 	log.GetLog().LogError(requestType, logMsg)
