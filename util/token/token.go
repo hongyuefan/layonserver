@@ -3,7 +3,7 @@ package token
 import (
 	"errors"
 	"fmt"
-	"strconv"
+
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -27,23 +27,20 @@ func TokenGenerate(userId int64) (token string, err error) {
 	return ojwt.SignedString([]byte(Secret_Key))
 }
 
-func TokenValidate(token string) (userId int64, err error) {
+func TokenValidate(token string) (userId string, err error) {
 
 	ojwt, err := jwt.ParseWithClaims(token, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(Secret_Key), nil
 	})
 
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	if claims, ok := ojwt.Claims.(*jwt.StandardClaims); ok && ojwt.Valid {
-
-		userId, _ = strconv.ParseInt(claims.Issuer, 10, 64)
-
-		return userId, nil
+		return claims.Issuer, nil
 	}
 
-	return 0, errors.New("token valide failse,please login again")
+	return "", errors.New("token valide failse,please login again")
 
 }

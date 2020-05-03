@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"layonserver/api"
+	"layonserver/models"
 	"layonserver/util/config"
 	"layonserver/util/log"
 	"layonserver/util/mongodb"
@@ -62,6 +63,7 @@ func (app *App) OnStart(c *config.Config) error {
 		if err := qmsql.InitMysql(g_ConfigData.SqlConn); err != nil {
 			panic(err)
 		}
+		qmsql.DEFAULTDB.AutoMigrate(models.Users{}, models.Devices{})
 	}
 	if len(g_ConfigData.MongoConn) > 0 {
 		mongodb.DitalMongo(g_ConfigData.MongoConn)
@@ -73,10 +75,21 @@ func (app *App) OnStart(c *config.Config) error {
 
 	router.Handle("GET", "health", func(c *gin.Context) { c.String(200, "ok") })
 
-	v1 := router.Group("/v1") /*.Use(app.handlers.UserAuthrize)*/
+	lg := router.Group("/lg").Use(app.handlers.UserAuthrize)
 	{
-		v1.POST("/post", app.handlers.HandlerPost)
-		v1.GET("/get", app.handlers.HandlerGet)
+		lg.POST("/device/del", app.handlers.HandlerDelDevice)
+		lg.POST("/device/list", app.handlers.HandlerGetDevices)
+		lg.POST("/device/add", app.handlers.HandlerAddDevice)
+		lg.POST("/users/list", app.handlers.HandlerGetUsers)
+		lg.POST("/users/info", app.handlers.HandlerGetUser)
+		lg.POST("/users/listbyfather", app.handlers.HandlerGetUsersByFather)
+	}
+
+	rg := router.Group("/rg")
+	{
+		rg.GET("/verifycode", app.handlers.HandlerGetVerifyCode)
+		rg.POST("/login", app.handlers.HandlerLogin)
+		rg.POST("/regist", app.handlers.HandlerRegist)
 	}
 
 	fmt.Println("Listen:", g_ConfigData.Port)
@@ -86,7 +99,6 @@ func (app *App) OnStart(c *config.Config) error {
 	} else {
 		http.ListenAndServe(":"+g_ConfigData.Port, router)
 	}
-
 	return nil
 }
 

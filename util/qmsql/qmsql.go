@@ -18,3 +18,7 @@ func InitMysql(conn string) error {
 	}
 	return nil
 }
+
+func RegistTable(values ...interface{}) {
+	DEFAULTDB.AutoMigrate(values)
+}

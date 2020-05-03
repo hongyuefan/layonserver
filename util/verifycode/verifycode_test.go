@@ -6,7 +6,7 @@ import (
 
 func TestBench(t *testing.T) {
 
-	vid, vul, err := VCodeGenerate(60, 240, 4)
+	vid, vul, err := VCodeGenerate(4)
 
 	t.Log(vid, vul, err)
 

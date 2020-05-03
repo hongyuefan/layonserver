@@ -20,7 +20,7 @@ func VCodeGenerate(length int) (capId, pngBase64 string, err error) {
 	// driver = param.DriverChinese.ConvertFonts()
 	// driver = param.DriverDigit
 
-	c := base64Captcha.NewCaptcha(&base64Captcha.DriverDigit{Height: 60, Width: 240, Length: length, MaxSkew: 0.7, DotCount: 20}, store)
+	c := base64Captcha.NewCaptcha(&base64Captcha.DriverDigit{Height: 40, Width: 120, Length: length, MaxSkew: 0.7, DotCount: 10}, store)
 
 	capId, pngBase64, err = c.Generate()
 
